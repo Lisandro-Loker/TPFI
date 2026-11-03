@@ -1,3 +1,5 @@
+"""Módulo Singleton para el acceso físico a CorporateData y CorporateLog."""
+
 from decimal import Decimal
 from typing import Any
 
@@ -5,8 +7,8 @@ import boto3
 from botocore.config import Config
 
 
-def _convert(item):
-    """Convierte Decimal de DynamoDB a int/float para poder serializar con json."""
+def _convert(item: Any) -> Any:
+    """Convierte objetos Decimal de DynamoDB a int o float para JSON."""
     if isinstance(item, list):
         return [_convert(i) for i in item]
     if isinstance(item, dict):
@@ -16,7 +18,7 @@ def _convert(item):
     return item
 
 
-CAMPOS_CORPORATE_DATA = [
+CAMPOS_CORPORATE_DATA: list[str] = [
     "id",
     "cp",
     "CUIT",
@@ -31,41 +33,40 @@ CAMPOS_CORPORATE_DATA = [
     "web",
 ]
 
-# Cliente compartido con reintentos adaptativos: evita
-# ProvisionedThroughputExceededException en tablas con capacidad baja.
-_CLIENTE_DYNAMODB = boto3.resource(
+_CLIENTE_DYNAMODB: Any = boto3.resource(
     "dynamodb",
     config=Config(retries={"max_attempts": 20, "mode": "adaptive"}),
 )
 
 
 class CorporateDataDB:
-    """Singleton-Acceso a tabla CorporateData"""
+    """Implementa el patrón Singleton para el acceso a CorporateData."""
 
-    _instance = None
+    _instance: "CorporateDataDB | None" = None
     _table: Any
 
-    def __new__(cls):
+    def __new__(cls) -> "CorporateDataDB":
+        """Garantiza una única instancia de conexión a CorporateData."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._table = _CLIENTE_DYNAMODB.Table("CorporateData")
         return cls._instance
 
-    def get(self, id):
-        response = self._table.get_item(Key={"id": id})
-        return _convert(response.get("Item"))
+    def get(self, record_id: str) -> dict[str, Any] | None:
+        """Recupera un registro de CorporateData según su identificador."""
+        response = self._table.get_item(Key={"id": record_id})
+        item = response.get("Item")
+        return _convert(item) if item is not None else None
 
-    def set(self, item):
-        """Merge parcial: completa campos faltantes con el valor viejo o en blanco."""
-        id = item.get("id")
-        if id is None:
+    def set(self, item: dict[str, Any]) -> dict[str, Any]:
+        """Inserta o actualiza parcialmente un registro en CorporateData."""
+        record_id = item.get("id")
+        if not record_id:
             raise ValueError("El registro debe incluir 'id'")
 
-        # Lee el registro existente
-        existente = self.get(id) or {}
+        existente = self.get(str(record_id)) or {}
 
-        # Arma el registro final: prioridad al nuevo item, resto del existente o en blanco
-        registro = {}
+        registro: dict[str, Any] = {}
         for campo in CAMPOS_CORPORATE_DATA:
             if campo in item:
                 registro[campo] = item[campo]
@@ -75,31 +76,41 @@ class CorporateDataDB:
                 registro[campo] = ""
 
         self._table.put_item(Item=registro)
-        return dict(item)
+        return _convert(registro)
 
-    def list(self):
+    def list(self) -> list[dict[str, Any]]:
+        """Retorna una lista con todos los registros de CorporateData."""
         items = self._table.scan().get("Items", [])
         return _convert(items)
 
 
 class CorporateLogDB:
-    """Singleton- acceso a tabla CorporateLog"""
+    """Implementa el patrón Singleton para el acceso a CorporateLog."""
 
-    __instance = None
+    _instance: "CorporateLogDB | None" = None
     _table: Any
 
-    def __new__(cls):
-        if cls.__instance is None:
-            cls.__instance = super().__new__(cls)
-            cls.__instance._table = _CLIENTE_DYNAMODB.Table("CorporateLog")
-        return cls.__instance
+    def __new__(cls) -> "CorporateLogDB":
+        """Garantiza una única instancia de conexión a CorporateLog."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._table = _CLIENTE_DYNAMODB.Table("CorporateLog")
+        return cls._instance
 
-    def log(self, uuid, sesion, accion, id, timestamp):
+    def log(
+        self,
+        client_uuid: Any,
+        sesion: Any,
+        accion: str,
+        record_id: Any,
+        timestamp: Any,
+    ) -> dict[str, str]:
+        """Registra una entrada de auditoría en la tabla CorporateLog."""
         item = {
-            "uuid": str(uuid),
+            "uuid": str(client_uuid),
             "sesion": str(sesion),
-            "accion": accion,
-            "id": id,
+            "accion": str(accion),
+            "id": str(record_id),
             "timestamp": str(timestamp),
         }
         self._table.put_item(Item=item)

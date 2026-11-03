@@ -5,7 +5,7 @@ desarrollo del TPFI, conforme al requisito de la cátedra.
 
 ## Herramientas utilizadas
 
-- Asistente de IA conversacional (EcoGPT) para diseño, depuración y revisión.
+- Asistentes de IA conversacionales (EcoGPT y Gemini) para diseño, depuración, pruebas y validación de calidad.
 
 ## Prompts y resultados
 
@@ -70,6 +70,30 @@ resuelvo?"
 
 **Resultado:** `ruff check . --fix` para los auto-corregibles, separación del
 `else` en línea propia y renombrado de `l` a `log` en las comprensiones.
+
+### 8. Compatibilidad del formato JSON en `set` y archivos de prueba manual
+
+**Prompt:** "Al ejecutar `singletonclient.py` con `input.json` para la acción `set`, el archivo `output.json` devuelve `Error` y necesito contar con todos los archivos JSON para realizar las pruebas manuales de `get`, `set`, `list` y casos de error."
+
+**Resultado:** actualización de `handle_client` en `singletonproxyobserver.py` para aceptar los campos de `CorporateData` tanto en la raíz del objeto JSON (según Tabla 1 de la consigna) como dentro de la clave `"data"`, validación de datos mínimos (`UUID`, `ACTION`, `ID`) y generación de `input.json`, `input_set.json`, `input_get.json`, `input_list.json` e `input_error.json`.
+
+### 9. Mensajes de trace/debug (`-v`) y filtrado de librerías de AWS
+
+**Prompt:** "Al activar `-v` en el servidor, la consola se llena con trazas internas de `boto3` y `botocore`, y falta agregar mensajes de debug por salida estándar en los clientes."
+
+**Resultado:** configuración de `logging.basicConfig` hacia `sys.stdout` en `singletonproxyobserver.py`, `singletonclient.py` y `observerclient.py`, y ajuste del nivel de log a `WARNING` para `boto3`, `botocore` y `urllib3`.
+
+### 10. Tipado estático, docstrings PEP257 y seguridad con Bandit
+
+**Prompt:** "Necesito que todos los módulos dentro de `src/tpfi` pasen sin errores `ruff`, `black`, `mypy`, `pyright` y `bandit`, eliminando código plantilla sin uso."
+
+**Resultado:** eliminación del archivo residual `src/tpfi/utils.py`, incorporación de anotaciones de tipos y docstrings PEP257 en todos los módulos y registro con `logging.debug` de excepciones de socket en `observer.py`.
+
+### 11. Ampliación de cobertura de pruebas unitarias (> 85%)
+
+**Prompt:** "`pytest --cov=src/tpfi` reporta 46.72% de cobertura total porque `singletonclient.py` y `observerclient.py` tienen 0%. ¿Cómo amplío los tests unitarios para superar el 85% requerido?"
+
+**Resultado:** incorporación de pruebas unitarias con `unittest.mock` en `tests/test_cliente-servidor.py` para cubrir los flujos principales y casos de borde de los clientes y del servidor, alcanzando un **94.87%** de cobertura total en `pytest`.
 
 ## Nota
 

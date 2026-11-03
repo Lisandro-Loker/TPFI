@@ -5,13 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "TPFI"
 version = "1.0.0"
-description = "Python Boilerplate contains all the boilerplate you need to create a Python package."
+description = "Trabajo Practico Final Integrador IS2 - Patrones Singleton, Proxy y Observer en AWS"
 readme = "README.md"
 authors = [
-  {name = "Augusto M.Sol", email = "solsito341@hotmail.com"}
+  {name = "Augusto M.Sol", email = "solsito341@hotmail.com"},
+  {name = "Lisandro Nahuel Loker Gonzalez", email = "lokerlisandro@gmail.com"}
 ]
 maintainers = [
-  {name = "Augusto M.Sol", email = "solsito341@hotmail.com"}
+  {name = "Augusto M.Sol", email = "solsito341@hotmail.com"},
+  {name = "Lisandro Nahuel Loker Gonzalez", email = "lokerlisandro@gmail.com"}
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -27,86 +29,29 @@ dependencies = [
 ]
 requires-python = ">= 3.12"
 
-[dependency-groups]
-dev = [
-    { include-group = "lint" },
-    { include-group = "test" },
-    { include-group = "typecheck" },
-]
-lint = [
-    "ruff",
-]
-test = [
-    "coverage",
-    "pytest",
-]
-typecheck = [
-    "ty",
-]
-docs = [
-    "zensical",
-    "mkdocstrings-python",
-]
-
-[project.urls]
-bugs = "https://github.com/PandaAColor/TPFI/issues"
-changelog = "https://github.com/PandaAColor/TPFI/releases"
-documentation = "https://PandaAColor.github.io/TPFI/"
-homepage = "https://github.com/PandaAColor/TPFI"
-
-[project.scripts]
-tpfi = "tpfi.cli:app"
-
-[tool.ty]
-# All rules are enabled as "error" by default; no need to specify unless overriding.
-# Example override: relax a rule for the entire project (uncomment if needed).
-# rules.TY015 = "warn"  # For invalid-argument-type, warn instead of error.
-
 [tool.ruff]
 line-length = 120
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-
-[tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = [
-    "typer.Argument",
-    "typer.Option",
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "UP",
 ]
 
 [tool.coverage.run]
 branch = true
-parallel = true
-source = ["src/", "tests/"]
+source = ["src/tpfi"]
 
 [tool.coverage.report]
 show_missing = true
-skip_covered = true
-fail_under = 50
-exclude_also = [
-    "if TYPE_CHECKING:",
-    "if typing.TYPE_CHECKING:",
-    "@overload",
-    "@typing.overload",
-    "class .*\\bProtocol\\):",
-    "@(abc\\.)?abstractmethod",
-    "raise NotImplementedError",
-    "\\.\\.\\.",
-]
+fail_under = 85
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tpfi"]
-
-[tool.uv]
-package = true
-default-groups = ["dev"]

@@ -98,7 +98,9 @@ def test_proxy_intermedia_get():
     """El proxy delega el get en CorporateData y responde al cliente."""
     db_data = mock.Mock()
     db_data.get.return_value = {"id": "test-proxy", "CUIT": "20-12345678-9"}
-    conn = FakeConn(json.dumps({"UUID": "u", "ID": "test-proxy", "ACTION": "get"}).encode())
+    conn = FakeConn(
+        json.dumps({"UUID": "u", "ID": "test-proxy", "ACTION": "get"}).encode()
+    )
 
     handle_client(conn, db_data=db_data, db_log=mock.Mock(), subject=mock.Mock())
 
@@ -113,7 +115,13 @@ def test_proxy_retransmite_set_a_suscriptos():
     db_data.set.return_value = {"id": "test-proxy-set", "CUIT": "20-12345678-9"}
     subject = mock.Mock()
     conn = FakeConn(
-        json.dumps({"UUID": "u", "ACTION": "set", "data": {"id": "test-proxy-set", "CUIT": "20-12345678-9"}}).encode()
+        json.dumps(
+            {
+                "UUID": "u",
+                "ACTION": "set",
+                "data": {"id": "test-proxy-set", "CUIT": "20-12345678-9"},
+            }
+        ).encode()
     )
 
     handle_client(conn, db_data=db_data, db_log=mock.Mock(), subject=subject)
@@ -129,7 +137,9 @@ def test_proxy_registra_auditoria_en_cada_accion():
     db_data.get.return_value = {"id": "test-audit"}
     db_log = mock.Mock()
 
-    conn = FakeConn(json.dumps({"UUID": "u", "ID": "test-audit", "ACTION": "get"}).encode())
+    conn = FakeConn(
+        json.dumps({"UUID": "u", "ID": "test-audit", "ACTION": "get"}).encode()
+    )
     handle_client(conn, db_data=db_data, db_log=db_log, subject=mock.Mock())
 
     db_log.log.assert_called_once()

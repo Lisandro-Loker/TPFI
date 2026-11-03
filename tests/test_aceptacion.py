@@ -129,7 +129,10 @@ def test_camino_feliz_get_registra_log():
     assert respuesta["id"] == "test-get"
     assert respuesta["CUIT"] == "20-12345678-9"
 
-    assert any(log.get("accion") == "get" and log.get("id") == "test-get" for log in mis_logs(db_log, mi_uuid))
+    assert any(
+        log.get("accion") == "get" and log.get("id") == "test-get"
+        for log in mis_logs(db_log, mi_uuid)
+    )
 
 
 def test_camino_feliz_set_registra_log():
@@ -138,7 +141,11 @@ def test_camino_feliz_set_registra_log():
     mi_uuid = "test-set-uuid-unico"
 
     respuesta, _ = ejecutar_accion(
-        {"UUID": mi_uuid, "ACTION": "set", "data": {"id": "test-set", "CUIT": "20-12345678-9"}},
+        {
+            "UUID": mi_uuid,
+            "ACTION": "set",
+            "data": {"id": "test-set", "CUIT": "20-12345678-9"},
+        },
         db_data=db_data,
         db_log=db_log,
     )
@@ -149,7 +156,10 @@ def test_camino_feliz_set_registra_log():
     item = db_data.get("test-set")
     assert item["id"] == "test-set"
 
-    assert any(log.get("accion") == "set" and log.get("id") == "test-set" for log in mis_logs(db_log, mi_uuid))
+    assert any(
+        log.get("accion") == "set" and log.get("id") == "test-set"
+        for log in mis_logs(db_log, mi_uuid)
+    )
 
 
 # ---------------------------------------------------------------------------
