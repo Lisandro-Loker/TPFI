@@ -11,11 +11,11 @@ AWS DynamoDB.
 
 El sistema está compuesto por tres programas:
 
-| Programa | Rol | Patrón |
-|---|---|---|
-| `singletonproxyobserver` | Servidor proxy que atiende a los clientes | Proxy |
-| `singletonclient` | Cliente que consulta y modifica datos | Singleton (acceso) |
-| `observerclient` | Cliente que se suscribe y recibe notificaciones | Observer |
+|   Programa               | Rol                                             |  Patrón  |
+|   ---                    |---                                              |   ---    |
+| `singletonproxyobserver` | Servidor proxy que atiende a los clientes       | Proxy    |
+| `singletonclient`        | Cliente que consulta y modifica datos           |Singleton |
+| `observerclient`         | Cliente que se suscribe y recibe notificaciones | Observer |
 
 El servidor expone dos tablas de DynamoDB a través de un singleton:
 
@@ -139,6 +139,22 @@ python -m src.tpfi.singletonclient -d '{\"UUID\":\"123456789\",\"ACTION\":\"list
 ```
 
 ## Tests
+Demostración Manual en Vivo con 3 Terminales CMD:
+Terminal 1 (Sevidor): Levantá el servidor con trazas activadas
+Bash
+python -m src.tpfi.singletonproxyobserver -p 8080 -v
+
+Terminal 2 (ObserverClient): Suscribí al cliente observador para que quede escuchando cambios en tiempo real
+Bash
+python -m src.tpfi.observerclient -s localhost -p 8080 -o output_observer.json -v
+
+Terminal 3 (SingletonClient con tus archivos JSON): Ejecutá una por una las 4 pruebas
+Bash
+python -m src.tpfi.singletonclient -i input_set.json -o output.json -v
+python -m src.tpfi.singletonclient -i input_get.json -v
+python -m src.tpfi.singletonclient -i input_list.json -v
+python -m src.tpfi.singletonclient -i input_error.json -v
+
 
 ```bash
 pytest -v

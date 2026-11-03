@@ -29,6 +29,10 @@ dependencies = [
 ]
 requires-python = ">= 3.12"
 
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
 [tool.ruff]
 line-length = 120
 
@@ -42,6 +46,15 @@ select = [
     "UP",
 ]
 
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+files = ["src/tpfi"]
+
+[tool.pyright]
+include = ["src/tpfi"]
+reportMissingImports = false
+
 [tool.coverage.run]
 branch = true
 source = ["src/tpfi"]
@@ -52,6 +65,7 @@ fail_under = 85
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+cache_dir = ".pytest_cache_local"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tpfi"]
