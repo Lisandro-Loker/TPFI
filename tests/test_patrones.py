@@ -112,7 +112,10 @@ def test_proxy_retransmite_set_a_suscriptos():
     """Un set notifica al solicitante y al subject."""
     db_data = mock.Mock()
     db_data.get.return_value = None
-    db_data.set.return_value = {"id": "test-proxy-set", "CUIT": "20-12345678-9"}
+    db_data.set.return_value = {
+        "id": "test-proxy-set",
+        "CUIT": "20-12345678-9",
+    }
     subject = mock.Mock()
     conn = FakeConn(
         json.dumps(

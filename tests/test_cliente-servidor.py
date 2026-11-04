@@ -186,7 +186,9 @@ def test_singletonclient_main_modos(
         singletonclient.main()
 
     monkeypatch.setattr(
-        sys, "argv", ["singletonclient", "-i", str(tmp_path / "no_existe.json")]
+        sys,
+        "argv",
+        ["singletonclient", "-i", str(tmp_path / "no_existe.json")],
     )
     with pytest.raises(SystemExit):
         singletonclient.main()

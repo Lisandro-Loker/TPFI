@@ -32,7 +32,7 @@ def handle_client(
     db_log: Any,
     subject: Any,
 ) -> None:
-    """Atiende un requerimiento JSON de un cliente mediante el patrón Proxy."""
+    """Atiende un requerimiento JSON de un cliente con el patrón Proxy."""
     mantener_abierta = False
     try:
         data = conn.recv(65536)
@@ -63,12 +63,14 @@ def handle_client(
             db_log.log(client_uuid, sesion, "get", record_id, ts)
             item = db_data.get(str(record_id))
             respuesta = item if item is not None else "Error"
-            conn.sendall(json.dumps(respuesta, default=default_serializer).encode())
+            payload = json.dumps(respuesta, default=default_serializer)
+            conn.sendall(payload.encode())
 
         elif action == "list":
             db_log.log(client_uuid, sesion, "list", "-", ts)
             items = db_data.list()
-            conn.sendall(json.dumps(items, default=default_serializer).encode())
+            payload = json.dumps(items, default=default_serializer)
+            conn.sendall(payload.encode())
 
         elif action == "set":
             raw_data = request.get("data")
@@ -86,26 +88,26 @@ def handle_client(
             item_data["id"] = str(record_id)
             db_log.log(client_uuid, sesion, "set", item_data["id"], ts)
             saved = db_data.set(item_data)
-            conn.sendall(json.dumps(saved, default=default_serializer).encode())
+            payload = json.dumps(saved, default=default_serializer)
+            conn.sendall(payload.encode())
             subject.notify(saved)
 
         elif action in ("subscribe", "suscribirse", "suscribe"):
             db_log.log(client_uuid, sesion, "subscribe", "-", ts)
             subject.subscribe(str(client_uuid), conn)
             mantener_abierta = True
-            conn.sendall(
-                json.dumps(
-                    {"status": "subscribed"}, default=default_serializer
-                ).encode()
-            )
+            payload = json.dumps({"status": "subscribed"}, default=default_serializer)
+            conn.sendall(payload.encode())
 
         else:
-            conn.sendall(json.dumps("Error", default=default_serializer).encode())
+            payload = json.dumps("Error", default=default_serializer)
+            conn.sendall(payload.encode())
 
     except Exception as exc:
         logging.debug("Error procesando cliente: %s", exc)
         try:
-            conn.sendall(json.dumps("Error", default=default_serializer).encode())
+            payload = json.dumps("Error", default=default_serializer)
+            conn.sendall(payload.encode())
         except Exception as send_exc:
             logging.debug("No se pudo enviar mensaje de error: %s", send_exc)
     finally:

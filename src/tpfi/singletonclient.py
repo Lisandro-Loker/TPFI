@@ -14,7 +14,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Cliente SingletonClient TPFI")
     parser.add_argument("-i", required=False, help="archivo de entrada JSON")
     parser.add_argument("-o", help="archivo de salida JSON (opcional)")
-    parser.add_argument("-s", default="localhost", help="hostname del servidor")
+    parser.add_argument("-s", default="localhost", help="host del servidor")
     parser.add_argument("-p", type=int, default=8080, help="puerto del servidor")
     parser.add_argument("-v", action="store_true", help="modo para trace y debug")
     parser.add_argument("-d", help="JSON de entrada directo (alternativa a -i)")
@@ -56,14 +56,15 @@ def main() -> None:
         sys.exit(1)
 
     response = data.decode()
-    logging.debug("Respuesta recibida del servidor: %s", response)
+    logging.debug("Respuesta recibida del servidor (%d bytes)", len(response))
 
     if args.o:
         with open(args.o, "w", encoding="utf-8") as file_out:
             file_out.write(response)
         logging.debug("Respuesta guardada en el archivo: %s", args.o)
 
-    print(response)
+    formatted = json.dumps(json.loads(response), indent=2, ensure_ascii=False)
+    print(formatted)
 
 
 if __name__ == "__main__":

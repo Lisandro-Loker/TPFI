@@ -69,11 +69,14 @@ def main() -> None:
                         if not data:
                             break
                         text = data.decode()
-                        logging.debug("Notificación recibida: %s", text)
+                        logging.debug("Notificación recibida (%d bytes)", len(text))
                         if args.o:
                             with open(args.o, "a", encoding="utf-8") as file_out:
                                 file_out.write(text + "\n")
-                        print(text)
+                        formatted = json.dumps(
+                            json.loads(text), indent=2, ensure_ascii=False
+                        )
+                        print(formatted)
             except (ConnectionAbortedError, OSError) as exc:
                 logging.debug("Conexión interrumpida: %s", exc)
                 print(f"Servidor caído, reintentando en {args.retry}s...")
